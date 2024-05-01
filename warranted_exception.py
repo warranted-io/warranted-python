@@ -1,0 +1,2 @@
+class WarrantedException(Exception):
+    pass
