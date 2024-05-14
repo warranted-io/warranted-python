@@ -1,9 +1,13 @@
 import os
+import platform
 import requests
+import sys
 from urllib.parse import urlencode
 
 from crypto_helper import create_hmac, time_safe_compare
 from warranted_exception import WarrantedException
+
+version = '1.0.0'
 
 class Client:
     def __init__(self, account_id, auth_token):
@@ -35,6 +39,27 @@ class Client:
         """
         self.headers.update(headers)
 
+    def _get_user_agent_header(self):
+        """
+        Internal method to get the user agent header
+        @returns {string} - the user agent header
+        """
+        os_name = platform.system()
+        architecture = platform.architecture()[0]
+        python_version = sys.version.split(' ')[0]
+
+        return f"warranted-python/{version} ({os_name} {architecture}) Python/{python_version}"
+
+    def _get_request_headers(self):
+        """
+        Internal method to get request headers
+        @returns {object} - the headers for a request
+        """
+        return {
+            'User-Agent': self._get_user_agent_header(),
+            **self.headers
+        }
+
     class _Decisions:
         def __init__(self, client):
             """
@@ -50,7 +75,7 @@ class Client:
             @returns {object} - Details at: http://app.warranted.io/docs/decisions
             """
             url = f'{self.client.host}/api/v1/decisions/{decision_id}'
-            response = requests.get(url, auth=(self.client.account_id, self.client.auth_token), headers=self.client.headers)
+            response = requests.get(url, auth=(self.client.account_id, self.client.auth_token), headers=self.client._get_request_headers())
             return response.json()
 
     decisions = _Decisions
@@ -81,7 +106,7 @@ class Client:
                     params['limit'] = int(options['limit'])
                 url += '?' + urlencode(params)
             
-            response = requests.get(url, auth=(self.account_id, self.auth_token), headers=self.headers)
+            response = requests.get(url, auth=(self.account_id, self.auth_token), headers=self.client._get_request_headers())
             return response.json()
 
         def add(self, law_enforcement_request_file):
@@ -93,7 +118,7 @@ class Client:
             file_name = os.path.basename(law_enforcement_request_file.name)
             form_data = {'lawEncforementRequest': (file_name, law_enforcement_request_file)}
             url = f'{self.host}/api/v1/lawEnforcementRequest/new'
-            response = requests.post(url, auth=(self.account_id, self.auth_token), headers=self.headers, files=form_data)
+            response = requests.post(url, auth=(self.account_id, self.auth_token), headers=self.client._get_request_headers(), files=form_data)
             return response.json()
 
         def update(self, law_enforcement_request_id, data):
@@ -103,7 +128,7 @@ class Client:
             @returns {object} - Details at: http://app.warranted.io/docs/lawEnforcementRequests
             """
             url = f'{self.client.host}/api/v1/lawEnforcementRequests/{law_enforcement_request_id}'
-            response = requests.put(url, json=data, auth=(self.client.account_id, self.client.auth_token), headers=self.client.headers)
+            response = requests.put(url, json=data, auth=(self.client.account_id, self.client.auth_token), headers=dict({'Content-Type': 'application/json'}, **self.client._get_request_headers()))
             return response.json()
 
         def delete(self, law_enforcement_request_id):
@@ -113,7 +138,7 @@ class Client:
             @returns {object} - Details at: http://app.warranted.io/docs/lawEnforcementRequests
             """
             url = f'{self.client.host}/api/v1/lawEnforcementRequests/{law_enforcement_request_id}'
-            response = requests.delete(url, auth=(self.client.account_id, self.client.auth_token), headers=self.client.headers)
+            response = requests.delete(url, auth=(self.client.account_id, self.client.auth_token), headers=self.client._get_request_headers())
             return response.json()
 
     law_enforcement_requests = _LawEnforcementRequests
@@ -132,7 +157,7 @@ class Client:
             @returns {object} - Details at: http://app.warranted.io/docs/me
             """
             url = f'{self.client.host}/api/v1/me'
-            response = requests.get(url, auth=(self.client.account_id, self.client.auth_token), headers=self.client.headers)
+            response = requests.get(url, auth=(self.client.account_id, self.client.auth_token), headers=self.client._get_request_headers())
             return response.json()
 
     me = _Me
@@ -151,7 +176,7 @@ class Client:
             @returns {object} - Details at: http://app.warranted.io/docs/schema
             """
             url = f'{self.client.host}/api/v1/schema'
-            response = requests.get(url, auth=(self.client.account_id, self.client.auth_token), headers=self.client.headers)
+            response = requests.get(url, auth=(self.client.account_id, self.client.auth_token), headers=self.client._get_request_headers())
             return response.json()
 
         def update(self, schema):
@@ -161,7 +186,7 @@ class Client:
             @returns {object} - Details at: http://app.warranted.io/docs/schema
             """
             url = f'{self.client.host}/api/v1/schema'
-            response = requests.put(url, json=schema, auth=(self.client.account_id, self.client.auth_token), headers=dict({'Content-Type': 'application/json'}, **self.client.headers))
+            response = requests.put(url, json=schema, auth=(self.client.account_id, self.client.auth_token), headers=dict({'Content-Type': 'application/json'}, **self.client._get_request_headers()))
             return response.json()
 
     schema = _Schema
