@@ -7,8 +7,11 @@ setup(
     url='https://github.com/warranted-io/warranted-python',
     author='API Team <api@warranted.io>',
     author_email='api@warranted.io',
-    license='ISC',
+    license='MIT',
     packages=['warranted'],
+    install_requires=[
+        "requests >= 2.0.0",
+    ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

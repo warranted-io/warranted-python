@@ -4,8 +4,8 @@ import requests
 import sys
 from urllib.parse import urlencode
 
-from crypto_helper import create_hmac, time_safe_compare
-from warranted_exception import WarrantedException
+from .crypto_helper import create_hmac, time_safe_compare
+from .warranted_exception import WarrantedException
 
 version = '1.0.0'
 
