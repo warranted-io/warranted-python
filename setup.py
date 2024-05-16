@@ -4,7 +4,7 @@ with open("README.md") as f:
     long_description = f.read()
 
 setup(
-    name='warranted-python',
+    name='warranted',
     version='1.0.0',
     description='A Warranted helper library',
     url='https://github.com/warranted-io/warranted-python',
