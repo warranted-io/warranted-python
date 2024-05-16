@@ -1,5 +1,8 @@
 from setuptools import setup
 
+with open("README.md") as f:
+    long_description = f.read()
+
 setup(
     name='warranted-python',
     version='1.0.0',
@@ -20,7 +23,6 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
     keywords='warranted api',
-    long_description='''
-A Warranted helper library
-'''
+    long_description=long_description,
+    long_description_content_type='text/markdown',
 )
